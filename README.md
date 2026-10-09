@@ -61,24 +61,31 @@ cp config.example.json config.json
 
 ## 单独运行脚本
 
-以下命令在项目根目录执行。
+以下命令在项目根目录执行。先发现可用解释器并逐个检查版本，不要假定 `python3` 满足要求。可用 `command -v` 查找 `python3` 或 `python3.14`、`python3.13`、`python3.12`、`python3.11`、`python3.10` 等版本化命令；macOS 也可检查 `/opt/homebrew/bin`、`/usr/local/bin` 和 `/Library/Frameworks/Python.framework/Versions/*/bin` 中已有的安装。其他环境可检查包管理器或虚拟环境提供的解释器。
+
+用候选解释器自身的 `--version` 检查版本，选定 Python >=3.10 的绝对可执行路径；后续脚本和测试始终使用同一个 `PYTHON`。没有符合要求的解释器时，停止并报告缺少的运行要求。
+
+```sh
+PYTHON=/absolute/path/to/selected/python
+"$PYTHON" -c 'import sys; print(sys.executable, sys.version); assert sys.version_info >= (3, 10), "Python >=3.10 required"'
+```
 
 默认过去七天：
 
 ```sh
-python3 scripts/prepare_digest.py --config config.example.json
+"$PYTHON" scripts/prepare_digest.py --config config.example.json
 ```
 
 指定回看天数和输出目录：
 
 ```sh
-python3 scripts/prepare_digest.py --days 14 --output-dir ./output
+"$PYTHON" scripts/prepare_digest.py --days 14 --output-dir ./output
 ```
 
 指定日期范围：
 
 ```sh
-python3 scripts/prepare_digest.py \
+"$PYTHON" scripts/prepare_digest.py \
   --config config.example.json \
   --start 2026-10-01 \
   --end 2026-10-08
@@ -87,7 +94,7 @@ python3 scripts/prepare_digest.py \
 指定带时区的时间范围：
 
 ```sh
-python3 scripts/prepare_digest.py \
+"$PYTHON" scripts/prepare_digest.py \
   --start '2026-10-01T09:00:00+08:00' \
   --end '2026-10-08T09:00:00+08:00'
 ```
@@ -153,10 +160,10 @@ Agent 应分批完整读取正文再摘要，不静默截断。播客原始链�
 
 ## 验证
 
-运行不依赖网络的测试：
+使用上面选定且检查过的同一个解释器，运行不依赖网络的测试：
 
 ```sh
-python3 -m unittest discover -s tests -v
+"$PYTHON" -m unittest discover -s tests -v
 ```
 
 测试覆盖时间边界、去重、版本更新、延迟采集、分页、重试和部分失败等行为。真实运行后，还应核对摘要来源链接、原文摘录、周期和模板结构。

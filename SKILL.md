@@ -5,10 +5,19 @@ description: Generate a local digest of Follow Builders content published during
 
 # Follow Builders digest
 
-Run the bundled `scripts/prepare_digest.py` with Python 3.10 or newer. Resolve the script and example config relative to this skill directory; choose a writable output directory in the user's workspace. No third-party packages are needed. Public GitHub access works without credentials; an optional `GITHUB_TOKEN` environment variable increases API quota. Never print or save that token.
+Before running scripts or tests, discover available Python interpreters and check their versions; do not assume `python3` is new enough. Select an executable with Python >=3.10 and use that exact executable for every subsequent Python command, including tests. If none qualifies, stop and report the missing requirement.
+
+Optional candidate discovery: use `command -v` for `python3` and versioned names such as `python3.14`, `python3.13`, `python3.12`, `python3.11`, and `python3.10`. On macOS, also check existing installations under `/opt/homebrew/bin`, `/usr/local/bin`, or `/Library/Frameworks/Python.framework/Versions/*/bin`; elsewhere, check the environment's package manager or virtual environment. Check each candidate you consider with its own `--version`, then record the selected absolute executable path in `PYTHON`:
 
 ```sh
-python3 /path/to/skill/scripts/prepare_digest.py --config /path/to/skill/config.example.json --days 7 --output-dir /path/to/workspace/output
+PYTHON=/absolute/path/to/selected/python
+"$PYTHON" -c 'import sys; print(sys.executable, sys.version); assert sys.version_info >= (3, 10), "Python >=3.10 required"'
+```
+
+Run the bundled `scripts/prepare_digest.py` with the selected interpreter. Resolve the script and example config relative to this skill directory; choose a writable output directory in the user's workspace. No third-party packages are needed. Public GitHub access works without credentials; an optional `GITHUB_TOKEN` environment variable increases API quota. Never print or save that token.
+
+```sh
+"$PYTHON" /path/to/skill/scripts/prepare_digest.py --config /path/to/skill/config.example.json --days 7 --output-dir /path/to/workspace/output
 ```
 
 For an explicit period replace `--days` with `--start 2026-10-01 --end 2026-10-08`. Dates and times without offsets use the configured timezone; the end is exclusive. Interpret a natural-language calendar period in that timezone. The default is the past 168 hours ending at run start. CLI values override config. Copy and customize the example config only when preferences need persistence.
