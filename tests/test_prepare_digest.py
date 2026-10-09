@@ -108,6 +108,20 @@ class PrepareTests(unittest.TestCase):
         self.assertEqual(failed["status"], "failed")
         self.assertFalse(digest)
 
+    def test_empty_digest_keeps_diagnostics_in_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            result = m.prepare(FakeClient(failures=["blogs"], empty=True), START, END, NOW,
+                               "zh-CN", "Asia/Shanghai", directory)
+            digest = (directory / "digest.md").read_text()
+            self.assertEqual(result["status"], "partial")
+            self.assertTrue(result["feeds"]["blogs"]["errors"])
+            self.assertIn("2026-10-01 08:00", digest)
+            self.assertIn("该周期未找到符合条件的内容。", digest)
+            self.assertNotIn("fixture unavailable", digest)
+            self.assertNotIn("数据质量", digest)
+            self.assertNotIn("运行时间", digest)
+
     def test_one_snapshot_failure_does_not_discard_other_snapshot(self):
         client = FakeClient()
         client.revisions = lambda *a: [commit("b" * 40), commit()]

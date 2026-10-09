@@ -245,15 +245,10 @@ def prepare(client, start, end, now, language, zone, run_dir):
     for filename, data in (("items.json", {"items": items}), ("manifest.json", manifest)):
         (run_dir / filename).write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if not items and manifest["status"] != "failed":
-        notes = []
-        for kind, report in manifest["feeds"].items():
-            notes.extend(f"- {kind}: {e}" for e in report["errors"] + report["warnings"])
-            if report["excluded_dates"]:
-                notes.append(f"- {kind}: 排除 {report['excluded_dates']} 次缺失或无效发布时间的观察记录。")
-        text = (f"# Follow Builders digest\n\n周期：{iso(start)} 至 {iso(end)}（终点不包含）\n\n"
-                f"运行时间：{iso(now)}\n\n截至本次运行，上游 Git 历史中可获取的内容。\n\n"
-                "该周期未找到符合条件的内容。\n\n数据质量：\n" +
-                ("\n".join(notes) if notes else "未报告获取错误；上游采集范围不代表完整内容。") + "\n")
+        local_zone = ZoneInfo(zone)
+        period = (f"{start.astimezone(local_zone):%Y-%m-%d %H:%M} — "
+                  f"{end.astimezone(local_zone):%Y-%m-%d %H:%M}")
+        text = f"# Follow Builders 摘要｜{period}\n\n该周期未找到符合条件的内容。\n"
         (run_dir / "digest.md").write_text(text, encoding="utf-8")
     return manifest
 
