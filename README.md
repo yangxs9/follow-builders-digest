@@ -17,6 +17,8 @@
 
 ## 在 agent 中使用
 
+本地项目目录统一命名为 `follow-builders-digest`；进入该目录后执行下文命令。
+
 将整个项目目录放入你的 agent 支持的 skill 目录，保留 `SKILL.md`、`scripts/` 和配置文件的相对位置。不同 agent 的安装与发现机制不同，按对应宿主的说明加载；这个 skill 的名称是 `follow-builders-digest`。
 
 也可以直接在项目目录中工作，让 agent 阅读 `SKILL.md` 后执行。示例请求：
