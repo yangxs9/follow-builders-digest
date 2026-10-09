@@ -1,6 +1,6 @@
 ---
 name: follow-builders-digest
-description: Generate a local digest of Follow Builders content published during a requested period, using upstream Git history. Use for on-demand Follow Builders summaries, including past periods.
+description: Generate on-demand Follow Builders digests.
 ---
 
 # Follow Builders digest
