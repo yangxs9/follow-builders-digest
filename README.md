@@ -21,7 +21,7 @@
 
 ### 安装到 Codex
 
-Codex 的用户级 skill 目录为 `~/.agents/skills/`，项目级目录为 `.agents/skills/`。可将本项目复制到其中的 `follow-builders-digest/`，或使用符号链接。保留 `SKILL.md`、`scripts/`、`references/`、`assets/` 和 `agents/` 的相对位置。仅在普通项目根目录放置 `SKILL.md`，不会使它自动成为已安装的 skill。
+Codex 的用户级 skill 目录为 `~/.agents/skills/`，项目级目录为 `.agents/skills/`。可将本项目复制到其中的 `follow-builders-digest/`，或使用符号链接。保留 `SKILL.md`、`scripts/`、`references/` 和 `assets/` 的相对位置。仅在普通项目根目录放置 `SKILL.md`，不会使它自动成为已安装的 skill。
 
 例如，在本项目根目录执行以下命令，将当前 checkout 链接为用户级 skill：
 
@@ -36,7 +36,7 @@ ln -s "$PWD" "$HOME/.agents/skills/follow-builders-digest"
 
 > 使用 $follow-builders-digest，生成过去七天的 Follow Builders 精选摘要，保存到当前工作区的 output 目录。
 
-Codex 会自动发现 skill 变更；未出现时重启 Codex。`agents/openai.yaml` 提供显示名称、简介和默认提示。安装位置与发现机制见 [OpenAI 官方文档](https://learn.chatgpt.com/docs/build-skills)。其他 agent 按各自宿主的说明加载。
+Codex 会根据 `SKILL.md` 中的名称和描述发现 skill；未出现时重启 Codex。安装位置与发现机制见 [OpenAI 官方文档](https://learn.chatgpt.com/docs/build-skills)。其他 agent 按各自宿主的说明加载。
 
 ### 不安装，直接使用
 
