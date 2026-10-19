@@ -1,42 +1,41 @@
-# Digest 选稿与写作规则
+# Digest selection and writing
 
-生成或复核 digest 时读取本文件；报告结构和条目占位模板见 [../assets/digest-template.md](../assets/digest-template.md)。
+Read this file when writing or reviewing a digest. Use [the template](../assets/digest-template.md) for the default layout. Style, section order, length, and quotation choices below are defaults: follow explicit user preferences. Preserve source accuracy, attribution, and honest coverage reporting with any format.
 
-## 选稿与覆盖范围
+## Selection and coverage
 
-- 默认生成精选摘要。优先选择与用户关注主题相关、信息密度高，且包含具体事实、例子、方法、推理或工程取舍的内容；用户指定主题、作者或完整整理范围时，按其要求调整。
-- 简短宣传、重复转发和缺少实质信息的内容可略过；产品发布若包含有用的变化、适用场景或限制，仍可入选。不按热度或作者名气代替内容判断。
-- 同一事件或观点可以合并，但保留各来源链接与观点归属；独有事实、补充条件和不同立场应保留，不因主题相同而删除。
-- 阅读候选正文后再决定选稿，长正文分批完整读取，不把尚未读完的候选当成已经筛选。不为控制篇幅静默缩小用户要求的覆盖范围；无法完成时明确说明实际覆盖。
-- 不固定条数或强求每类都有内容。有候选但因主题不符或正文不足而没有入选内容时，在回复中说明筛选原因，不将其写成“该周期没有内容”。
-- 在交互回复或外部调度任务输出中报告 `manifest.json` 的候选总数，以及 digest 实际代表的不同候选 `id` 数。同一候选被多次提及时只计一次；合并多个候选的一个条目可以代表多个候选。
-- 精选不等于全量，采集成功也不代表上游覆盖完整。说明采集状态、重要缺口及实际整理范围；验收样例明确标注为样例。数量和诊断不放入 digest 正文。
+- Produce a curated digest by default. Prefer relevant content with concrete facts, examples, methods, reasoning, or engineering tradeoffs. Adapt to requested topics, authors, or comprehensive coverage.
+- Skip thin promotion, repetitive reposts, and unsupported generalities. Product announcements can qualify when they explain useful changes, applications, or limitations. Popularity and author reputation are not substitutes for substance.
+- Merge overlapping events or views while keeping source links and attribution. Retain unique facts, qualifications, and opposing views.
+- Read candidate bodies before selection, using complete batches or segments for long content. Do not count unread candidates as reviewed. If the requested scope cannot be completed, state the actual coverage.
+- Do not force an item count or fill every source category. If candidates exist but none qualify, explain the selection reason in the response; do not claim that the period contained no content.
+- Report the manifest's candidate count and the number of distinct candidate `id` values represented in the digest. Count each candidate once, even if mentioned repeatedly; a merged entry may represent several candidates.
+- Distinguish curation from complete coverage and acquisition success from upstream completeness. Disclose material gaps and label acceptance samples as samples. By default, keep counts and diagnostics in the task response or scheduler output, outside the digest.
 
-## 报告结构
+## Default structure
 
-- 默认中文。按用户要求及 `manifest.json` 的 `language` 调整标题和摘要语言；英文原文保留英文。
-- 标题显示请求的日期范围，按 `manifest.json` 的 `timezone` 解释。
-- 栏目顺序固定为 X、博客、播客，没有可用内容的栏目省略。标题使用“Weekly Digest”作为默认名称，非七天范围使用“Digest”。
-- 正文直接进入内容，不加入导读、运行时间、SHA、数量统计、数据质量、获取错误、单条发布时间或运行产物链接。
-- 成功获取且 `items.json` 的候选集为空时，只保留带时间范围的标题和“该周期未找到符合条件的内容。”
+- Write in the user's requested language, recorded as `language` in the manifest; the default is Chinese. Keep source quotations in their original language.
+- Show the requested period in the title, interpreted in the manifest's `timezone`.
+- Order sections as X, blogs, then podcasts, omitting empty sections. Use “Weekly Digest” for seven-day periods and “Digest” for other periods. Localize section headings to the requested language.
+- Start directly with content. Omit an introduction, run times, SHAs, counts, diagnostics, acquisition errors, individual publication dates, and artifact links from the digest body.
+- If acquisition has not failed and there are no candidates, use only a dated title and a short “No matching content was found for this period” message in the requested language. Report any acquisition gaps separately.
 
-## 篇幅与英文引用
+## Default detail and quotations
 
-- 英文摘录是常规组成部分：有可用英文正文的条目，至少选择一处能表达清楚意思的摘录；重要或合并多个来源的条目可选两处。普通产品动态可以更短。
-- 不设置整篇固定条数、字数或机械的中英文比例。优先增加有信息量的原文，不用泛泛的中文重复稀释引用。
-- 根据理解需要选择引用长度，不把所有摘录都压成一句 highlight。简短动态或独立成立的观点可以引用短句；涉及推理、条件、例子或取舍时，优先保留连续的几句话或一个完整段落，让读者看到观点怎样展开、适用于什么情境。
-- 较长摘录应形成一个完整的意思：可包含“问题或背景 → 解释或例子 → 结论”，不为凑长度加入无关内容。重点条目可以同时有短句 highlight 和上下文摘录，但避免重复引用同一句话。
-- 优先选体现观点、推理、工程取舍的原文。遵守适用的引用限制，更多上下文通过原始链接阅读。需要省略时明确标记，不拼接不相邻的片段来伪装成连续原文。
-- 从候选正文准确摘录，保留措辞和必要上下文。不得把中文回译成英文冒充原文。转录明显不可靠的句子不引用。
-- 让读者直接阅读英文原文，不增加词汇、语法、惯用表达或英文用法讲解。中文用于呈现背景、事实和观点，不逐句翻译或重复引用。
-- 合并多位作者时，每组摘录明确归属；不同立场分别解释，不写成所有人都同意的结论。
-- 来源链接使用 `items.json` 中的原始 URL。播客链接若只有频道或播放列表，使用“频道”或“播放列表”作为链接标签，无需加入获取过程说明。
-- 只报告来源支持的事实、例子与观点。自己的延伸判断必须明确标识，不能当作作者原意。
+- For an entry with usable English source text, include at least one meaningful excerpt; important or merged entries may use two. Ordinary product updates can be shorter. A user's request for no quotations overrides this default.
+- Do not impose a fixed total length, item count, or language ratio. Prefer informative source material over generic commentary that repeats it.
+- Choose quotation length for understanding, within applicable quotation limits. A short statement can stand alone; reasoning, conditions, examples, or tradeoffs may need several continuous sentences or a paragraph when permitted. Link to the original for more context.
+- Longer excerpts should convey a complete thought, such as context, explanation, and conclusion. Avoid irrelevant padding or repeating the same sentence in both a highlight and an extended quotation.
+- Quote accurately from candidate bodies and preserve qualifications. Mark omissions; do not splice separate passages into a supposedly continuous quotation. Never back-translate a summary and present it as an original quote. Avoid unreliable transcript passages.
+- By default, let readers read English excerpts directly. Use the requested summary language to explain context, facts, and views without line-by-line translation or vocabulary and grammar lessons.
+- Attribute excerpts from different authors individually and explain disagreements rather than implying consensus.
+- Use the source `url` from `items.json`. If a podcast URL points only to a channel or playlist, label the link accordingly rather than guessing an episode URL.
+- Present only facts and views supported by the source. Clearly label your own interpretation.
 
-## 完成前检查
+## Final review
 
-- 每个来源链接与 `items.json` 中的 `url` 一致，不自行拼接账号或猜测单集地址。
-- 英文引用与候选正文一致，保留理解所需的条件、指代和上下文，不能只剩失去语境的金句；中文准确呈现背景、观点归属和关键取舍，没有无来源支持的事实。
-- 栏目和条目符合模板和本文件规则，没有遗留占位符、空栏目、英文用法讲解或运行日志。
-- 空候选集的报告也按相同规则检查，并按用户语言偏好调整。
-- 交互回复中的数量与候选集及实际引用对应；明确精选或用户要求的完整整理范围，并说明尚未阅读或无法获取的部分。
+- Verify source URLs against `items.json`, and quotations against candidate bodies.
+- Check that summaries preserve context, attribution, qualifications, and meaningful tradeoffs without unsupported facts.
+- Follow the requested format or default template. Remove placeholders and empty sections. Under the default style, also omit language lessons and run diagnostics.
+- Review empty-result digests too, including the requested language and period.
+- Reconcile reported counts with the candidate set and cited items. Identify curation, incomplete reading, and unavailable content honestly.

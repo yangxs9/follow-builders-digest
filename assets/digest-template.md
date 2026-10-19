@@ -1,37 +1,37 @@
-# Digest 模板
+# Digest template
 
-## 报告模板
+Use this as the default layout; adapt it to explicit user preferences. Write summaries and localize headings in the language requested by the user (`manifest.json` records it; default: Chinese). Keep quotations in their source language and omit empty sections. For periods other than seven days, use “Digest” instead of “Weekly Digest”.
+
+## Report
 
 ```markdown
-# Follow Builders Weekly Digest｜{{日期范围}}
+# Follow Builders Weekly Digest | {{date range}}
 
-## X：Builders 在讨论什么
+## X: What builders are discussing
 
-{{按下方条目模板写精选内容}}
+{{selected entries using the layout below}}
 
-## 博客：值得细读的文章
+## Blogs: Articles worth reading
 
-{{按下方条目模板写精选内容}}
+{{selected entries}}
 
-## 播客：值得展开听的讨论
+## Podcasts: Discussions worth exploring
 
-{{按下方条目模板写精选内容}}
+{{selected entries}}
 ```
 
-## 条目模板
+## Entry
 
 ```markdown
-### {{具体、易懂的标题；播客可加节目名}}
+### {{specific, accessible title; optionally include the podcast name}}
 
-**{{一句话概括核心观点，明确观点属于谁。}}**
+**{{one-sentence summary of the main point, with clear attribution}}**
 
-{{一到两段中文：交代背景、具体例子和关键取舍。}}
+{{one or two paragraphs in the requested language: context, concrete examples, and key tradeoffs}}
 
-> {{英文原文摘录：可以是点明观点的短句，也可以是保留必要上下文的一段连续原文。}}
+> {{accurate source excerpt, when available and wanted; retain useful context and respect quotation limits}}
 
-{{如有必要，继续补充观点的背景、具体例子或关键取舍；}}
+{{optional further context or examples; important entries may include another attributed excerpt}}
 
-{{重要内容可继续穿插英文原文，让引用与中文内容自然衔接。}}
-
-[{{作者或节目名称}}]({{原始链接}})
+[{{author or show name}}]({{source URL}})
 ```
