@@ -255,34 +255,34 @@ def prepare(client, start, end, now, language, zone, run_dir):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", type=Path)
-    parser.add_argument("--days", type=int)
-    parser.add_argument("--start")
-    parser.add_argument("--end")
-    parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--days", type=int, help="Lookback days (default: 7); cannot be combined with --start/--end")
+    parser.add_argument("--start", help="Inclusive date or ISO timestamp; requires --end")
+    parser.add_argument("--end", help="Exclusive date or ISO timestamp; requires --start")
+    parser.add_argument("--timezone", default="Asia/Shanghai", help="IANA timezone for dates and output (default: Asia/Shanghai)")
+    parser.add_argument("--language", default="zh-CN", help="Digest language for the agent; the script does not translate (default: zh-CN)")
+    parser.add_argument("--output-dir", type=Path, default=Path("./output"), help="Output parent directory (default: ./output)")
     args = parser.parse_args()
     now = datetime.now(UTC)
     try:
-        config = json.loads(args.config.read_text(encoding="utf-8")) if args.config else {}
-        if not isinstance(config, dict):
-            raise ValueError("config must be an object")
-        zone_name = config.get("timezone", "Asia/Shanghai")
-        zone = ZoneInfo(zone_name)
+        zone = ZoneInfo(args.timezone)
+        language = args.language.strip()
+        if not language:
+            raise ValueError("language must not be empty")
         if bool(args.start) != bool(args.end) or (args.start and args.days is not None):
             raise ValueError("--start and --end must be paired and cannot be combined with --days")
-        days = args.days if args.days is not None else config.get("days", 7)
-        if not isinstance(days, int) or isinstance(days, bool) or days <= 0:
+        days = args.days if args.days is not None else 7
+        if days <= 0:
             raise ValueError("days must be a positive integer")
         start = parse_time(args.start, zone) if args.start else now - timedelta(days=days)
         end = parse_time(args.end, zone) if args.end else now
         if start >= end or start > now:
             raise ValueError("period must have start < end and start <= run time")
-        output = args.output_dir or Path(config.get("output_dir", "./output"))
+        output = args.output_dir
         output.mkdir(parents=True, exist_ok=True)
         run_dir = Path(tempfile.mkdtemp(prefix=now.strftime("%Y%m%dT%H%M%SZ-"), dir=output)).resolve()
     except (OSError, ValueError, TypeError, KeyError) as exc:
         parser.error(str(exc))
-    manifest = prepare(Client(), start, end, now, config.get("language", "zh-CN"), zone_name, run_dir)
+    manifest = prepare(Client(), start, end, now, language, args.timezone, run_dir)
     print(json.dumps({"status": manifest["status"], "run_dir": str(run_dir),
                       "item_count": manifest["item_count"]}, ensure_ascii=False))
     return 1 if manifest["status"] == "failed" else 0

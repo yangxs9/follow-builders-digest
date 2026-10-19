@@ -17,9 +17,28 @@
 
 ## 在 agent 中使用
 
-本地项目目录统一命名为 `follow-builders-digest`；进入该目录后执行下文命令。
+本项目的 skill 名称和安装目录名为 `follow-builders-digest`。
 
-将整个项目目录放入你的 agent 支持的 skill 目录，保留 `SKILL.md`、`scripts/` 和配置文件的相对位置。不同 agent 的安装与发现机制不同，按对应宿主的说明加载；这个 skill 的名称是 `follow-builders-digest`。
+### 安装到 Codex
+
+Codex 的用户级 skill 目录为 `~/.agents/skills/`，项目级目录为 `.agents/skills/`。可将本项目复制到其中的 `follow-builders-digest/`，或使用符号链接。保留 `SKILL.md`、`scripts/`、`references/`、`assets/` 和 `agents/` 的相对位置。仅在普通项目根目录放置 `SKILL.md`，不会使它自动成为已安装的 skill。
+
+例如，在本项目根目录执行以下命令，将当前 checkout 链接为用户级 skill：
+
+```sh
+mkdir -p "$HOME/.agents/skills"
+ln -s "$PWD" "$HOME/.agents/skills/follow-builders-digest"
+```
+
+目标已存在时，先检查已有安装，选择复用或更新，不直接覆盖。符号链接会跟随本 checkout 的修改；移动或删除本项目会使链接失效。项目级安装可在目标项目中创建 `.agents/skills/follow-builders-digest` 链接，指向本项目的绝对路径。
+
+安装后可使用以下请求：
+
+> 使用 $follow-builders-digest，生成过去七天的 Follow Builders 精选摘要，保存到当前工作区的 output 目录。
+
+Codex 会自动发现 skill 变更；未出现时重启 Codex。`agents/openai.yaml` 提供显示名称、简介和默认提示。安装位置与发现机制见 [OpenAI 官方文档](https://learn.chatgpt.com/docs/build-skills)。其他 agent 按各自宿主的说明加载。
+
+### 不安装，直接使用
 
 也可以直接在项目目录中工作，让 agent 阅读 `SKILL.md` 后执行。示例请求：
 
@@ -27,45 +46,35 @@
 
 > 使用 follow-builders-digest，整理上海时间 2026 年 10 月 1 日至 10 月 8 日的内容，结束时间不包含在内，生成中文摘要。
 
-Agent 会运行脚本，阅读候选内容与运行报告，再按 `assets/digest-template.md` 在本次运行目录中写入 `digest.md`。摘要按 X、博客和播客分组，空分类省略；每条包含概括、具体细节、英文摘录和原始链接。
+Agent 会运行脚本，阅读候选内容与运行报告，再按 `references/digest-writing.md` 的规则和 `assets/digest-template.md` 的模板，在本次运行目录中写入 `digest.md`。摘要按 X、博客和播客分组，空分类省略；每条包含概括、具体细节、可用的英文摘录和原始链接。
+
+默认生成精选摘要，优先选择相关且有具体事实、方法、例子或取舍的内容，合并重复观点并保留不同立场；用户要求全量整理时按其指定范围执行。交互回复会说明候选总数、入选候选数、采集状态和重要缺口。一个摘要条目可能合并多个候选，因此条目数与入选候选数不同；少量验收样例会明确标注为样例。
 
 报告标题显示时间范围，正文不包含运行日志、数量统计或单条发布时间。数据缺失在交互回复或未来 cron job 的输出中简要说明，详细信息保留在 `manifest.json`。当前版本仍为手动触发。
 
 ### 调整报告模板
 
-编辑 `assets/digest-template.md` 可调整栏目、条目顺序、篇幅和英文引用方式。`SKILL.md` 要求 agent 在生成前读取该文件。模板保留英文原文供直接阅读，不讲解英文用法；中文补充背景、例子和观点，重要内容可以增加摘录。
+编辑 `assets/digest-template.md` 可调整报告和条目的占位结构；选稿、栏目顺序、篇幅、英文引用和复核规则集中在 `references/digest-writing.md`，修改结构时同步调整对应规则。`SKILL.md` 要求 agent 在生成前读取两者。报告保留英文原文供直接阅读，不讲解英文用法；中文补充背景、例子和观点，重要内容可以增加摘录。
 
-## 配置
+## 调用要求与默认值
 
-可以直接使用 `config.example.json`，或复制后修改：
+直接在调用 skill 的 prompt 中说明要求；agent 将时间、语言、时区和输出目录转换为脚本参数，主题、选稿及写作要求用于摘要阶段。未指定的项使用默认值，无需配置文件。例如：
 
-```sh
-cp config.example.json config.json
-```
+> 使用 $follow-builders-digest，整理过去 14 天的内容，用英文输出，保存到当前工作区的 reports 目录。
 
-```json
-{
-  "days": 7,
-  "language": "zh-CN",
-  "timezone": "Asia/Shanghai",
-  "output_dir": "./output"
-}
-```
-
-| 字段 | 用途 | 默认值 |
+| 脚本参数 | 用途 | 默认值 |
 | --- | --- | --- |
-| `days` | 默认回看天数，必须为正整数 | `7` |
-| `language` | Agent 撰写摘要的语言 | `zh-CN` |
-| `timezone` | 解释日期及不带偏移量的时间 | `Asia/Shanghai` |
-| `output_dir` | 运行产物的父目录 | `./output` |
+| `--days` | 回看天数，必须为正整数 | `7` |
+| `--start` / `--end` | 成对指定日期范围，代替回看天数 | 未指定 |
+| `--language` | Agent 撰写摘要的语言，记录在 manifest 中 | `zh-CN` |
+| `--timezone` | 解释日期、不带偏移量的时间及报告日期范围 | `Asia/Shanghai` |
+| `--output-dir` | 运行产物的父目录 | `./output` |
 
-命令行参数覆盖对应配置。不指定配置文件也能使用上述默认值。相对输出路径基于**执行命令时的工作目录**，不是配置文件所在目录；安装后建议指定工作区中的输出路径。
+用户要求优先于默认值。相对输出路径基于**执行命令时的工作目录**；agent 使用当前工作区中的输出路径。`--language` 告诉 agent 使用何种语言，不会使脚本自行翻译原文或撰写摘要；脚本创建的空结果摘要也由 agent 按请求语言复核调整。
 
 ## 单独运行脚本
 
-以下命令在项目根目录执行。先发现可用解释器并逐个检查版本，不要假定 `python3` 满足要求。可用 `command -v` 查找 `python3` 或 `python3.14`、`python3.13`、`python3.12`、`python3.11`、`python3.10` 等版本化命令；macOS 也可检查 `/opt/homebrew/bin`、`/usr/local/bin` 和 `/Library/Frameworks/Python.framework/Versions/*/bin` 中已有的安装。其他环境可检查包管理器或虚拟环境提供的解释器。
-
-用候选解释器自身的 `--version` 检查版本，选定 Python >=3.10 的绝对可执行路径；后续脚本和测试始终使用同一个 `PYTHON`。没有符合要求的解释器时，停止并报告缺少的运行要求。
+以下命令在项目根目录执行。先选定并验证 Python >=3.10 的绝对可执行路径，不要假定 `python3` 满足要求；后续脚本和测试始终使用同一个 `PYTHON`。解释器发现和时区数据排查见 [references/runtime.md](references/runtime.md)。没有符合要求的解释器时，停止并报告缺少的运行要求。
 
 ```sh
 PYTHON=/absolute/path/to/selected/python
@@ -75,7 +84,7 @@ PYTHON=/absolute/path/to/selected/python
 默认过去七天：
 
 ```sh
-"$PYTHON" scripts/prepare_digest.py --config config.example.json
+"$PYTHON" scripts/prepare_digest.py
 ```
 
 指定回看天数和输出目录：
@@ -84,11 +93,16 @@ PYTHON=/absolute/path/to/selected/python
 "$PYTHON" scripts/prepare_digest.py --days 14 --output-dir ./output
 ```
 
+指定摘要语言和解释日期的时区：
+
+```sh
+"$PYTHON" scripts/prepare_digest.py --days 14 --language en --timezone America/New_York
+```
+
 指定日期范围：
 
 ```sh
 "$PYTHON" scripts/prepare_digest.py \
-  --config config.example.json \
   --start 2026-10-01 \
   --end 2026-10-08
 ```
@@ -101,9 +115,9 @@ PYTHON=/absolute/path/to/selected/python
   --end '2026-10-08T09:00:00+08:00'
 ```
 
-`--start` 和 `--end` 必须同时提供，不能与命令行中的 `--days` 一起使用。配置中的默认 `days` 不妨碍指定日期范围。
+`--start` 和 `--end` 必须同时提供，不能与显式传入的 `--days` 一起使用。未传 `--days` 时的默认七天不妨碍指定日期范围。
 
-筛选按内容发布时间，区间为 `[start, end)`：包含起点，不包含终点。日期表示配置时区的当天零点；带偏移量的时间按自身偏移量解释。默认七天是从运行开始时间向前推 **168 小时**，不是上一自然周。
+筛选按内容发布时间，区间为 `[start, end)`：包含起点，不包含终点。日期表示 `--timezone` 指定时区的当天零点；带偏移量的时间按自身偏移量解释。默认七天是从运行开始时间向前推 **168 小时**，不是上一自然周。
 
 **脚本通常只生成候选集和运行报告，不直接生成摘要。** 脚本结束后，让 agent 按 `SKILL.md` 读取本次目录中的文件并撰写 `digest.md`。只有成功获取但候选集为空时，脚本会直接生成简短的空结果 digest。
 
@@ -131,7 +145,7 @@ output/
 | `partial` | 部分历史、快照或上游采集有错误；可继续摘要可用内容 | `0` |
 | `failed` | 无法成功获取或处理任何来源；查看报告，不应解读为没有内容 | `1` |
 
-参数或配置错误以退出码 `2` 结束。判断部分成功应查看 `status` 和报告，而不只检查退出码。原始快照暂存在临时目录，处理后删除；运行产物保留在输出目录，`output/` 默认被 Git 忽略。
+参数错误以退出码 `2` 结束。判断部分成功应查看 `status` 和报告，而不只检查退出码。原始快照暂存在临时目录，处理后删除；运行产物保留在输出目录，`output/` 默认被 Git 忽略。
 
 ## 时间、去重与覆盖范围
 
@@ -146,7 +160,7 @@ output/
 
 **GitHub 限流或认证失败**
 
-脚本可通过环境变量 `GITHUB_TOKEN` 使用已有凭据。凭据不放入配置文件，也不写入运行产物；请通过你的运行环境设置。匿名额度耗尽时，可配置 token 或等额度恢复后重新执行；认证失败时检查 token 是否有效。脚本不会自动读取本机 `gh` 登录。
+脚本可通过环境变量 `GITHUB_TOKEN` 使用已有凭据。凭据不放入 prompt 或命令行参数，也不写入运行产物；请通过你的运行环境设置。匿名额度耗尽时，可设置 token 或等额度恢复后重新执行；认证失败时检查 token 是否有效。脚本不会自动读取本机 `gh` 登录。
 
 **只有 JSON 文件，没有 digest.md**
 

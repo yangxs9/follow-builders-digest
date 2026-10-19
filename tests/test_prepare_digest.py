@@ -1,4 +1,5 @@
 import importlib.util
+import io
 import json
 import tempfile
 import subprocess
@@ -200,11 +201,43 @@ class PrepareTests(unittest.TestCase):
         result, _, _ = self.run_fixture(client)
         self.assertEqual(result["status"], "failed")
 
+    def run_cli_fixture(self, *args):
+        with tempfile.TemporaryDirectory() as temp, \
+                patch.object(sys, "argv", ["prepare_digest.py", "--output-dir", temp, *args]), \
+                patch.object(m, "Client", return_value=FakeClient()), \
+                patch.object(m, "datetime", wraps=datetime) as clock, \
+                patch.object(sys, "stdout", new_callable=io.StringIO) as stdout:
+            clock.now.return_value = NOW
+            self.assertEqual(m.main(), 0)
+            run_dir = Path(json.loads(stdout.getvalue())["run_dir"])
+            self.assertEqual(run_dir.parent, Path(temp).resolve())
+            return json.loads((run_dir / "manifest.json").read_text())
+
+    def test_cli_defaults_without_configuration(self):
+        manifest = self.run_cli_fixture()
+        self.assertEqual(manifest["start"], m.iso(NOW - timedelta(days=7)))
+        self.assertEqual(manifest["end"], m.iso(NOW))
+        self.assertEqual(manifest["language"], "zh-CN")
+        self.assertEqual(manifest["timezone"], "Asia/Shanghai")
+
+    def test_cli_requested_days_and_language(self):
+        manifest = self.run_cli_fixture("--days", "14", "--language", "en")
+        self.assertEqual(manifest["start"], m.iso(NOW - timedelta(days=14)))
+        self.assertEqual(manifest["language"], "en")
+
+    def test_cli_requested_timezone_and_calendar_period(self):
+        manifest = self.run_cli_fixture("--start", "2026-10-01", "--end", "2026-10-08",
+                                        "--timezone", "America/New_York")
+        self.assertEqual(manifest["start"], "2026-10-01T04:00:00Z")
+        self.assertEqual(manifest["end"], "2026-10-08T04:00:00Z")
+        self.assertEqual(manifest["timezone"], "America/New_York")
+
     def test_cli_invalid_period_does_not_fetch(self):
         script = str(Path(__file__).parents[1] / "scripts/prepare_digest.py")
         for args in [["--start", "2026-10-01"], ["--days", "0"],
                      ["--start", "2026-10-01", "--end", "2026-10-02", "--days", "7"],
-                     ["--start", "2026-10-02", "--end", "2026-10-01"]]:
+                     ["--start", "2026-10-02", "--end", "2026-10-01"],
+                     ["--timezone", "Invalid/Timezone"], ["--language", " "]]:
             result = subprocess.run([sys.executable, script] + args, capture_output=True, text=True)
             self.assertEqual(result.returncode, 2)
             self.assertIn("error:", result.stderr)
